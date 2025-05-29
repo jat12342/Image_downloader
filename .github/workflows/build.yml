@@ -1,21 +1,41 @@
+name: Build APK
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3    # latest stable checkout action
 
-      - name: Build APK
-        uses: digreatbrian/buildozer-action@v1   # ye abhi tak latest stable lagta hai
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libtinfo6
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Build APK with Buildozer
+        uses: digreatbrian/buildozer-action@v1
         with:
           buildozer-cmd: buildozer -v android debug
-          work-dir: .  # jahan tumhara main.py hai
+          workdir: .
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4    # latest stable upload artifact action
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: apk-package
           path: ./bin/*.apk
