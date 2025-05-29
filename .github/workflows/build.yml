@@ -1,47 +1,38 @@
-name: build-android
+name: Build Android APK
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-22.04
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10
+          python-version: '3.10'
 
-      - name: Install system dependencies
+      - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install -y unzip zip openjdk-17-jdk python3-pip python3-setuptools
-
-      - name: Install Buildozer
-        run: |
-          pip install --upgrade pip
-          pip install cython==0.29.36
-          pip install buildozer
+          python -m pip install --upgrade pip
+          pip install buildozer cython
 
       - name: Accept Android SDK licenses
         run: |
           mkdir -p ~/.android
           echo '### User Agreements' > ~/.android/repositories.cfg
-          yes | buildozer android clean
-        shell: bash
 
       - name: Build APK
         run: |
+          buildozer init || true
           buildozer android debug
 
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v3.1.3
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
         with:
-          name: android-apk
+          name: app-release.apk
           path: bin/*.apk
