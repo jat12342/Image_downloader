@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk
+      ANDROID_SDK_ROOT: /tmp/android-sdk
 
     steps:
     - name: Checkout repo
@@ -20,7 +20,7 @@ jobs:
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.11'  # Use supported python version
+        python-version: '3.11'
 
     - name: Install system dependencies
       run: |
