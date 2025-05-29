@@ -1,43 +1,44 @@
 name: Build Android APK
 
-on: push: branches: - main
+on:
+  push:
+    branches:
+      - main
 
-jobs: build: runs-on: ubuntu-latest
+jobs:
+  build:
+    runs-on: ubuntu-22.04
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-  - name: Set up Python 3.10
-    uses: actions/setup-python@v5
-    with:
-      python-version: '3.10'
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
-  - name: Install system dependencies
-    run: |
-      sudo apt update
-      sudo apt install -y zip unzip openjdk-17-jdk wget
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cython
+          pip install buildozer
 
-  - name: Install buildozer and dependencies
-    run: |
-      python -m pip install --upgrade pip
-      pip install cython==0.29.36
-      pip install buildozer
+      - name: Accept Android SDK licenses
+        run: |
+          mkdir -p ~/.android
+          echo '### User Agreements' > ~/.android/repositories.cfg
 
-  - name: Create Android SDK license file
-    run: |
-      mkdir -p ~/.android
-      echo '24333f8a63b6825ea9c5514f83c2829b004d1fee' > ~/.android/repositories.cfg
+      - name: Initialize buildozer
+        run: |
+          buildozer init || true
 
-  - name: Initialize buildozer
-    run: buildozer init || true
+      - name: Build the APK
+        run: |
+          buildozer android debug
 
-  - name: Build APK
-    run: buildozer android debug
-
-  - name: Upload APK
-    uses: actions/upload-artifact@v3
-    with:
-      name: app-release.apk
-      path: bin/*.apk
-
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-debug.apk
+          path: bin/*.apk
