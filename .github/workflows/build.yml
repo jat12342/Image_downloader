@@ -1,37 +1,21 @@
-name: Build APK
-
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
-          pip install buildozer kivy kivymd requests cython
+      - uses: actions/checkout@v3    # latest stable checkout action
 
       - name: Build APK
-        run: |
-          buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: digreatbrian/buildozer-action@v1   # ye abhi tak latest stable lagta hai
         with:
-          name: android-apk
-          path: ./.buildozer/android/platform/build/dists/your_app_name/bin/*.apk
+          buildozer-cmd: buildozer -v android debug
+          work-dir: .  # jahan tumhara main.py hai
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3    # latest stable upload artifact action
+        with:
+          name: package
+          path: ./bin/*.apk
